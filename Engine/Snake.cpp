@@ -4,7 +4,18 @@
 Snake::Snake(const Location& in_loc)
 {
 	segments[0].InitHead(in_loc);
+	constexpr int nBodyColors = 4;
+	constexpr Color bodyColors[nBodyColors] = {
+		{ 10,100,32},
+		{ 10,150,48 },
+		{ 18,255,48 },
+		{ 10,150,48 }
+	};
 
+	for (int i = 1; i < segmentsMax; ++i)
+	{
+		segments[i].InitBody(bodyColors[i % nBodyColors]);
+	}
 }
 
 void Snake::Draw(Board& brd)
@@ -29,16 +40,6 @@ void Snake::Grow()
 	if (nSegments < segmentsMax)
 	{
 		++nSegments;
-		Color c;
-		if (nSegments % 2 == 0)
-		{
-			c = body;
-		}
-		else
-		{
-			c = { 10,100,10 };
-		}
-		segments[nSegments].InitBody( c );
 	}
 }
 
@@ -47,16 +48,14 @@ bool Snake::IsColliding(const Board& brd,const Location& delta_loc)
 	Location nextPosition = segments[0].loc;
 	nextPosition.Add(delta_loc);
 	
-	bool CollidingWithBody = false;
 	for (int i = 0; i < nSegments - 1; ++i) {
 		if (nextPosition == segments[i].loc)
 		{
-			CollidingWithBody = true;
+			return true;
 		}
 	}
 
-	return CollidingWithBody ||
-		nextPosition.x > brd.GetGridWidth() ||
+	return nextPosition.x > brd.GetGridWidth() ||
 		nextPosition.y > brd.GetGridHeight() ||
 		nextPosition.x < 0 ||
 		nextPosition.y < 0;
@@ -65,18 +64,28 @@ bool Snake::IsColliding(const Board& brd,const Location& delta_loc)
 
 bool Snake::CollidingLoc(const Location& in_loc)
 {
-	bool CollidingLoc = false;
-
 	for (int i = 0; i <= nSegments; i++)
 	{
 		if (segments[i].loc == in_loc)
 		{
-			CollidingLoc = true;
+			return true;
 		}
 	}
+	return false;
+}
 
-	return CollidingLoc;
-
+bool Snake::NextPositionColliding(const Location& in_loc, const Location& delta_loc)
+{
+	Location nextPosition = segments[0].loc;
+	nextPosition.Add(delta_loc);
+	for (int i = 0; i <= nSegments; i++)
+	{
+		if (nextPosition == in_loc)
+		{
+			return true;
+		}
+	}
+	return false;
 }
 
 

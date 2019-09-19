@@ -28,6 +28,7 @@
 #include "Location.h"
 #include "Goal.h"
 #include "SpriteCodex.h"
+#include "Block.h"
 #include <random>
 
 class Game
@@ -55,6 +56,10 @@ private:
 	Location delta_loc = { 1,0 };
 	Snake snek;
 	Goal goal;
+	int nBlocks = 0;
+	static constexpr int nBlocksMax = 100;
+	static constexpr int chanceGenerateBlock = 1;
+	Block block[nBlocksMax];
 	static constexpr int snekMovePeriod = 20;
 	static constexpr Location gridLoc = { 2,2 };
 	int snekMoveCounter = 0;

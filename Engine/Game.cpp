@@ -59,19 +59,19 @@ void Game::UpdateModel()
 
 		if (wnd.kbd.KeyIsPressed(VK_UP) && !(delta_loc == delta_DOWN) )
 		{
-			delta_loc = delta_UP;
+				delta_loc = delta_UP;
 		}
 		if (wnd.kbd.KeyIsPressed(VK_DOWN) && !(delta_loc == delta_UP))
 		{
-			delta_loc = delta_DOWN;
+				delta_loc = delta_DOWN;
 		}
 		if (wnd.kbd.KeyIsPressed(VK_LEFT) && !(delta_loc == delta_RIGHT))
 		{
-			delta_loc = delta_LEFT;
+				delta_loc = delta_LEFT;
 		}
 		if (wnd.kbd.KeyIsPressed(VK_RIGHT) && !(delta_loc == delta_LEFT))
 		{
-			delta_loc = delta_RIGHT;
+				delta_loc = delta_RIGHT;
 		}
 
 
@@ -80,7 +80,7 @@ void Game::UpdateModel()
 		{
 			snekMoveCounter = 0;
 
-			if (snek.CollidingLoc(goal.getLoc()))
+			if (snek.NextPositionColliding(goal.getLoc(), delta_loc))
 			{
 				Location respawn;
 				do
@@ -96,7 +96,37 @@ void Game::UpdateModel()
 				goal.Respawn(respawn);
 			}
 
-			if (!snek.IsColliding(brd, delta_loc))
+			if (nBlocks < nBlocksMax)
+			{
+				std::uniform_int_distribution<int> chanceBlock(0, 100);
+				if (chanceBlock(rng) <= chanceGenerateBlock)
+				{
+					Location respawn;
+					do
+					{
+						std::uniform_int_distribution<int> xD(0, brd.GetGridWidth() - 1);
+						std::uniform_int_distribution<int> yD(0, brd.GetGridHeight() - 1);
+
+						respawn = { xD(rng),yD(rng) };
+
+					} while (snek.CollidingLoc(respawn) && respawn == goal.getLoc());
+
+					block[nBlocks].InitBlock(respawn);
+					++nBlocks;
+
+				}
+			}
+
+			bool CollidingBlocks = false;
+			for (int i = 0; i < nBlocks; ++i)
+			{
+				if (snek.NextPositionColliding(block[i].getLoc(), delta_loc))
+				{
+					CollidingBlocks = true;
+				}
+			}
+
+			if (!snek.IsColliding(brd, delta_loc) && !CollidingBlocks)
 			{
 				snek.Move(delta_loc);
 			}
@@ -104,6 +134,9 @@ void Game::UpdateModel()
 				isGameOver = true;
 			}
 		}
+
+	
+
 	}
 }
 
@@ -111,6 +144,12 @@ void Game::ComposeFrame()
 {
 	brd.DrawBorder();
 	goal.Draw(brd);
+
+	for (int i = 0; i <= nBlocks; ++i)
+	{
+		block[i].Draw(brd);
+	}
+
 	snek.Draw(brd);
 
 	if (isGameOver)

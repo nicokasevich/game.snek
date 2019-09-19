@@ -32,4 +32,5 @@ public:
 	void Grow();
 	bool IsColliding(const Board& brd, const Location& delta_loc);
 	bool CollidingLoc(const Location& in_loc);
+	bool NextPositionColliding(const Location& in_loc, const Location& delta_loc);
 };
